@@ -3,12 +3,25 @@ import Payment from "../models/Payment";
 import User from "../models/User";
 import { AuthRequest } from "../middleware/verifyToken";
 
+const packages: { [key: number]: number } = {
+  100: 10,
+  300: 25,
+  800: 60,
+  1500: 110,
+};
+
 export const purchaseCredits = async (req: AuthRequest, res: Response) => {
   try {
-    const { email, credits, amount, transactionId } = req.body;
+    const { credits, amount, transactionId } = req.body;
+    const email = req.user!.email;
 
-    if (!email || !credits || !amount || !transactionId) {
+    if (!credits || !amount || !transactionId) {
       return res.status(400).json({ message: "All fields are required." });
+    }
+
+    // validate package
+    if (packages[credits] !== amount) {
+      return res.status(400).json({ message: "Invalid credit package." });
     }
 
     const user = await User.findOne({ email });

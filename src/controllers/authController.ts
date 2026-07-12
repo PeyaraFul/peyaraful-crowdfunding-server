@@ -22,13 +22,17 @@ export const register = async (req: Request, res: Response) => {
       return res.status(409).json({ message: "Email already registered." });
     }
 
-    const defaultCredits = role === "creator" ? 20 : role === "admin" ? 0 : 50;
+    // only allow supporter and creator roles
+    const allowedRoles = ["supporter", "creator"];
+    const userRole = allowedRoles.includes(role) ? role : "supporter";
+
+    const defaultCredits = userRole === "creator" ? 20 : 50;
 
     const user = await User.create({
       name,
       email,
       photo: photo || "",
-      role: role || "supporter",
+      role: userRole,
       password,
       credits: defaultCredits,
     });
@@ -106,7 +110,7 @@ export const getMe = async (req: AuthRequest, res: Response) => {
 export const getUserByEmail = async (req: Request, res: Response) => {
   try {
     const { email } = req.params;
-    const user = await User.findOne({ email }).select("-password");
+    const user = await User.findOne({ email }).select("name email photo role");
 
     if (!user) {
       return res.status(404).json({ message: "User not found." });

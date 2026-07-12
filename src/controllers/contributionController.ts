@@ -3,6 +3,7 @@ import Contribution from "../models/Contribution";
 import Campaign from "../models/Campaign";
 import User from "../models/User";
 import { AuthRequest } from "../middleware/verifyToken";
+import { createNotification } from "./notificationController";
 
 export const createContribution = async (req: AuthRequest, res: Response) => {
   try {
@@ -142,6 +143,13 @@ export const approveContribution = async (req: AuthRequest, res: Response) => {
     contribution.status = "approved";
     await contribution.save();
 
+    // send notification to supporter
+    await createNotification(
+      "Your contribution of " + contribution.amount + " credits to " + contribution.campaign_title + " was approved by " + contribution.creator_name,
+      contribution.supporter_email,
+      "/dashboard/supporter-home"
+    );
+
     res.json(contribution);
   } catch (error) {
     res.status(500).json({ message: "Server error." });
@@ -178,6 +186,13 @@ export const rejectContribution = async (req: AuthRequest, res: Response) => {
 
     contribution.status = "rejected";
     await contribution.save();
+
+    // send notification to supporter
+    await createNotification(
+      "Your contribution of " + contribution.amount + " credits to " + contribution.campaign_title + " was rejected by " + contribution.creator_name,
+      contribution.supporter_email,
+      "/dashboard/supporter-home"
+    );
 
     res.json(contribution);
   } catch (error) {

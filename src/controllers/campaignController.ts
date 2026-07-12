@@ -3,6 +3,7 @@ import Campaign from "../models/Campaign";
 import Contribution from "../models/Contribution";
 import User from "../models/User";
 import { AuthRequest } from "../middleware/verifyToken";
+import { createNotification } from "./notificationController";
 
 export const createCampaign = async (req: AuthRequest, res: Response) => {
   try {
@@ -150,6 +151,9 @@ export const deleteCampaign = async (req: AuthRequest, res: Response) => {
 
     await Campaign.findByIdAndDelete(req.params.id);
 
+    // delete all contributions for this campaign
+    await Contribution.deleteMany({ campaign_id: req.params.id });
+
     res.json({ message: "Campaign deleted and credits refunded." });
   } catch (error) {
     res.status(500).json({ message: "Server error." });
@@ -188,6 +192,13 @@ export const updateCampaignStatus = async (
     if (!campaign) {
       return res.status(404).json({ message: "Campaign not found." });
     }
+
+    // send notification to creator
+    await createNotification(
+      "Your campaign \"" + campaign.title + "\" has been " + status + " by admin.",
+      campaign.creator_email,
+      "/dashboard/creator-home"
+    );
 
     res.json(campaign);
   } catch (error) {

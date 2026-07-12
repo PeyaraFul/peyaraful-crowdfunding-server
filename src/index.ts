@@ -9,6 +9,8 @@ import campaignRoutes from "./routes/campaign";
 import contributionRoutes from "./routes/contribution";
 import withdrawalRoutes from "./routes/withdrawal";
 import creditRoutes from "./routes/credit";
+import notificationRoutes from "./routes/notification";
+import reportRoutes from "./routes/report";
 
 dotenv.config();
 
@@ -66,5 +68,7 @@ app.use("/api/campaigns", campaignRoutes);
 app.use("/api/contributions", contributionRoutes);
 app.use("/api/withdrawals", withdrawalRoutes);
 app.use("/api/credits", creditRoutes);
+app.use("/api/notifications", notificationRoutes);
+app.use("/api/reports", reportRoutes);
 
 startServer();

@@ -3,6 +3,7 @@ import Withdrawal from "../models/Withdrawal";
 import User from "../models/User";
 import Campaign from "../models/Campaign";
 import { AuthRequest } from "../middleware/verifyToken";
+import { createNotification } from "./notificationController";
 
 export const createWithdrawal = async (req: AuthRequest, res: Response) => {
   try {
@@ -28,7 +29,19 @@ export const createWithdrawal = async (req: AuthRequest, res: Response) => {
       0
     );
 
-    if (withdrawal_credit > totalRaised) {
+    // subtract pending withdrawals
+    const pendingWithdrawals = await Withdrawal.find({
+      creator_email: req.user!.email,
+      status: "pending",
+    });
+    const pendingTotal = pendingWithdrawals.reduce(
+      (sum, w) => sum + w.withdrawal_credit,
+      0
+    );
+
+    const available = totalRaised - pendingTotal;
+
+    if (withdrawal_credit > available) {
       return res
         .status(400)
         .json({ message: "Insufficient raised credits." });
@@ -112,8 +125,20 @@ export const approveWithdrawal = async (req: AuthRequest, res: Response) => {
       }
     }
 
+    // check if all credits were deducted
+    if (remaining > 0) {
+      return res.status(400).json({ message: "Insufficient credits available." });
+    }
+
     withdrawal.status = "approved";
     await withdrawal.save();
+
+    // send notification to creator
+    await createNotification(
+      "Your withdrawal of " + withdrawal.withdrawal_credit + " credits ($" + withdrawal.withdrawal_amount + ") has been approved.",
+      withdrawal.creator_email,
+      "/dashboard/creator-home"
+    );
 
     res.json(withdrawal);
   } catch (error) {
