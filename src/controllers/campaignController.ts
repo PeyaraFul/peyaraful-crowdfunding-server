@@ -130,7 +130,10 @@ export const deleteCampaign = async (req: AuthRequest, res: Response) => {
       return res.status(404).json({ message: "Campaign not found." });
     }
 
-    if (campaign.creator_email !== req.user!.email) {
+    // allow creator (owner) or admin
+    const isOwner = campaign.creator_email === req.user!.email;
+    const isAdmin = req.user!.role === "admin";
+    if (!isOwner && !isAdmin) {
       return res
         .status(403)
         .json({ message: "Not authorized to delete this campaign." });

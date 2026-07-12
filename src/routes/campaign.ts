@@ -26,7 +26,7 @@ router.get("/all", verifyToken, requireRole("admin"), getAllCampaigns);
 // Creator
 router.post("/", verifyToken, requireRole("creator"), createCampaign);
 router.put("/:id", verifyToken, requireRole("creator"), updateCampaign);
-router.delete("/:id", verifyToken, requireRole("creator"), deleteCampaign);
+router.delete("/:id", verifyToken, deleteCampaign);
 
 // Admin
 router.put(
