@@ -9,7 +9,7 @@ export interface IPayment extends Document {
 }
 
 const paymentSchema = new Schema<IPayment>({
-  email: { type: String, required: true },
+  email: { type: String, required: true, index: true },
   amount: { type: Number, required: true },
   credits: { type: Number, required: true },
   date: { type: Date, default: Date.now },

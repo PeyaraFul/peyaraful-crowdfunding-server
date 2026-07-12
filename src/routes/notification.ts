@@ -4,6 +4,6 @@ import { verifyToken } from "../middleware/verifyToken";
 
 const router = Router();
 
-router.get("/:email", verifyToken, getNotifications);
+router.get("/", verifyToken, getNotifications);
 
 export default router;

@@ -112,6 +112,17 @@ export const approveWithdrawal = async (req: AuthRequest, res: Response) => {
       status: "approved",
     });
 
+    // first check total available before deducting
+    const totalAvailable = campaigns.reduce(
+      (sum, c) => sum + c.amount_raised,
+      0
+    );
+
+    if (withdrawal.withdrawal_credit > totalAvailable) {
+      return res.status(400).json({ message: "Insufficient credits available." });
+    }
+
+    // now safe to deduct
     let remaining = withdrawal.withdrawal_credit;
 
     for (const campaign of campaigns) {
@@ -123,11 +134,6 @@ export const approveWithdrawal = async (req: AuthRequest, res: Response) => {
         remaining -= deduct;
         await campaign.save();
       }
-    }
-
-    // check if all credits were deducted
-    if (remaining > 0) {
-      return res.status(400).json({ message: "Insufficient credits available." });
     }
 
     withdrawal.status = "approved";

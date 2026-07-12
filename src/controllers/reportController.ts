@@ -1,6 +1,7 @@
 import { Response } from "express";
 import Report from "../models/Report";
 import Campaign from "../models/Campaign";
+import User from "../models/User";
 import { AuthRequest } from "../middleware/verifyToken";
 
 // submit report (supporter)
@@ -17,8 +18,10 @@ export const submitReport = async (req: AuthRequest, res: Response) => {
       return res.status(404).json({ message: "Campaign not found." });
     }
 
+    const user = await User.findOne({ email: req.user!.email });
+
     const report = await Report.create({
-      reporter_name: req.user!.email,
+      reporter_name: user?.name || req.user!.email,
       campaign_id,
       campaign_title: campaign.title,
       reason,

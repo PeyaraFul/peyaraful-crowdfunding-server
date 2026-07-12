@@ -5,7 +5,7 @@ import { AuthRequest } from "../middleware/verifyToken";
 // get notifications by email
 export const getNotifications = async (req: AuthRequest, res: Response) => {
   try {
-    const email = req.params.email;
+    const email = req.user!.email;
 
     const notifications = await Notification.find({ toEmail: email }).sort({
       time: -1,
