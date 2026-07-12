@@ -16,25 +16,27 @@ import { requireRole } from "../middleware/requireRole";
 
 const router = Router();
 
-// Public
+// Named routes FIRST (before /:id)
 router.get("/approved", getApprovedCampaigns);
 router.get("/top", getTopCampaigns);
-router.get("/:id", getCampaignById);
+router.get("/mine", verifyToken, requireRole("creator"), getMyCampaigns);
+router.get("/pending", verifyToken, requireRole("admin"), getPendingCampaigns);
+router.get("/all", verifyToken, requireRole("admin"), getAllCampaigns);
 
 // Creator
 router.post("/", verifyToken, requireRole("creator"), createCampaign);
-router.get("/mine", verifyToken, requireRole("creator"), getMyCampaigns);
 router.put("/:id", verifyToken, requireRole("creator"), updateCampaign);
 router.delete("/:id", verifyToken, requireRole("creator"), deleteCampaign);
 
 // Admin
-router.get("/pending", verifyToken, requireRole("admin"), getPendingCampaigns);
-router.get("/all", verifyToken, requireRole("admin"), getAllCampaigns);
 router.put(
   "/:id/status",
   verifyToken,
   requireRole("admin"),
   updateCampaignStatus
 );
+
+// Dynamic route LAST
+router.get("/:id", getCampaignById);
 
 export default router;

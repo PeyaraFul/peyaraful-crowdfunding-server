@@ -1,5 +1,7 @@
 import { Response } from "express";
 import Campaign from "../models/Campaign";
+import Contribution from "../models/Contribution";
+import User from "../models/User";
 import { AuthRequest } from "../middleware/verifyToken";
 
 export const createCampaign = async (req: AuthRequest, res: Response) => {
@@ -15,6 +17,8 @@ export const createCampaign = async (req: AuthRequest, res: Response) => {
       image_url,
     } = req.body;
 
+    const user = await User.findOne({ email: req.user!.email });
+
     const campaign = await Campaign.create({
       title,
       story,
@@ -25,13 +29,13 @@ export const createCampaign = async (req: AuthRequest, res: Response) => {
       reward_info,
       image_url: image_url || "",
       creator_email: req.user!.email,
-      creator_name: req.body.creator_name,
+      creator_name: user?.name || "",
       status: "pending",
     });
 
     res.status(201).json(campaign);
   } catch (error) {
-    res.status(500).json({ message: "Server error.", error });
+    res.status(500).json({ message: "Server error." });
   }
 };
 
@@ -47,7 +51,7 @@ export const getApprovedCampaigns = async (
 
     res.json(campaigns);
   } catch (error) {
-    res.status(500).json({ message: "Server error.", error });
+    res.status(500).json({ message: "Server error." });
   }
 };
 
@@ -59,7 +63,7 @@ export const getTopCampaigns = async (req: AuthRequest, res: Response) => {
 
     res.json(campaigns);
   } catch (error) {
-    res.status(500).json({ message: "Server error.", error });
+    res.status(500).json({ message: "Server error." });
   }
 };
 
@@ -73,7 +77,7 @@ export const getCampaignById = async (req: AuthRequest, res: Response) => {
 
     res.json(campaign);
   } catch (error) {
-    res.status(500).json({ message: "Server error.", error });
+    res.status(500).json({ message: "Server error." });
   }
 };
 
@@ -85,7 +89,7 @@ export const getMyCampaigns = async (req: AuthRequest, res: Response) => {
 
     res.json(campaigns);
   } catch (error) {
-    res.status(500).json({ message: "Server error.", error });
+    res.status(500).json({ message: "Server error." });
   }
 };
 
@@ -113,7 +117,7 @@ export const updateCampaign = async (req: AuthRequest, res: Response) => {
 
     res.json(campaign);
   } catch (error) {
-    res.status(500).json({ message: "Server error.", error });
+    res.status(500).json({ message: "Server error." });
   }
 };
 
@@ -131,11 +135,24 @@ export const deleteCampaign = async (req: AuthRequest, res: Response) => {
         .json({ message: "Not authorized to delete this campaign." });
     }
 
+    const approvedContributions = await Contribution.find({
+      campaign_id: req.params.id,
+      status: "approved",
+    });
+
+    for (const contrib of approvedContributions) {
+      const supporter = await User.findOne({ email: contrib.supporter_email });
+      if (supporter) {
+        supporter.credits += contrib.amount;
+        await supporter.save();
+      }
+    }
+
     await Campaign.findByIdAndDelete(req.params.id);
 
-    res.json({ message: "Campaign deleted successfully." });
+    res.json({ message: "Campaign deleted and credits refunded." });
   } catch (error) {
-    res.status(500).json({ message: "Server error.", error });
+    res.status(500).json({ message: "Server error." });
   }
 };
 
@@ -147,7 +164,7 @@ export const getPendingCampaigns = async (req: AuthRequest, res: Response) => {
 
     res.json(campaigns);
   } catch (error) {
-    res.status(500).json({ message: "Server error.", error });
+    res.status(500).json({ message: "Server error." });
   }
 };
 
@@ -174,7 +191,7 @@ export const updateCampaignStatus = async (
 
     res.json(campaign);
   } catch (error) {
-    res.status(500).json({ message: "Server error.", error });
+    res.status(500).json({ message: "Server error." });
   }
 };
 
@@ -184,6 +201,6 @@ export const getAllCampaigns = async (req: AuthRequest, res: Response) => {
 
     res.json(campaigns);
   } catch (error) {
-    res.status(500).json({ message: "Server error.", error });
+    res.status(500).json({ message: "Server error." });
   }
 };

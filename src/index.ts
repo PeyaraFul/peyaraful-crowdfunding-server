@@ -6,6 +6,7 @@ import User from "./models/User";
 import authRoutes from "./routes/auth";
 import userRoutes from "./routes/user";
 import campaignRoutes from "./routes/campaign";
+import contributionRoutes from "./routes/contribution";
 
 dotenv.config();
 
@@ -60,5 +61,6 @@ app.get("/", (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/campaigns", campaignRoutes);
+app.use("/api/contributions", contributionRoutes);
 
 startServer();

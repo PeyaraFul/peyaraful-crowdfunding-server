@@ -4,7 +4,7 @@ import User from "../models/User";
 import { AuthRequest } from "../middleware/verifyToken";
 
 const generateToken = (email: string, role: string): string => {
-  return jwt.sign({ email, role }, process.env.JWT_SECRET, {
+  return jwt.sign({ email, role }, process.env.JWT_SECRET!, {
     expiresIn: "7d",
   });
 };
@@ -22,7 +22,7 @@ export const register = async (req: Request, res: Response) => {
       return res.status(409).json({ message: "Email already registered." });
     }
 
-    const defaultCredits = role === "creator" ? 20 : 50;
+    const defaultCredits = role === "creator" ? 20 : role === "admin" ? 0 : 50;
 
     const user = await User.create({
       name,
@@ -46,7 +46,7 @@ export const register = async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    res.status(500).json({ message: "Server error.", error });
+    res.status(500).json({ message: "Server error." });
   }
 };
 
@@ -83,7 +83,7 @@ export const login = async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    res.status(500).json({ message: "Server error.", error });
+    res.status(500).json({ message: "Server error." });
   }
 };
 
@@ -99,7 +99,7 @@ export const getMe = async (req: AuthRequest, res: Response) => {
 
     res.json(user);
   } catch (error) {
-    res.status(500).json({ message: "Server error.", error });
+    res.status(500).json({ message: "Server error." });
   }
 };
 
@@ -114,6 +114,6 @@ export const getUserByEmail = async (req: Request, res: Response) => {
 
     res.json(user);
   } catch (error) {
-    res.status(500).json({ message: "Server error.", error });
+    res.status(500).json({ message: "Server error." });
   }
 };
