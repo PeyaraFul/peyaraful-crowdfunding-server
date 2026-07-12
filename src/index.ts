@@ -7,6 +7,8 @@ import authRoutes from "./routes/auth";
 import userRoutes from "./routes/user";
 import campaignRoutes from "./routes/campaign";
 import contributionRoutes from "./routes/contribution";
+import withdrawalRoutes from "./routes/withdrawal";
+import creditRoutes from "./routes/credit";
 
 dotenv.config();
 
@@ -62,5 +64,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/campaigns", campaignRoutes);
 app.use("/api/contributions", contributionRoutes);
+app.use("/api/withdrawals", withdrawalRoutes);
+app.use("/api/credits", creditRoutes);
 
 startServer();
