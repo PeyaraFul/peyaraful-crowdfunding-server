@@ -5,6 +5,7 @@ import mongoose from "mongoose";
 import User from "./models/User";
 import authRoutes from "./routes/auth";
 import userRoutes from "./routes/user";
+import campaignRoutes from "./routes/campaign";
 
 dotenv.config();
 
@@ -58,5 +59,6 @@ app.get("/", (req, res) => {
 
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/campaigns", campaignRoutes);
 
 startServer();
