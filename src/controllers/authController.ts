@@ -121,3 +121,52 @@ export const getUserByEmail = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Server error." });
   }
 };
+
+export const getAllUsers = async (req: Request, res: Response) => {
+  try {
+    const users = await User.find({}).select("-password").sort({ createdAt: -1 });
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ message: "Server error." });
+  }
+};
+
+export const updateUserRole = async (req: Request, res: Response) => {
+  try {
+    const { email } = req.params;
+    const { role } = req.body;
+
+    if (!["supporter", "creator", "admin"].includes(role)) {
+      return res.status(400).json({ message: "Invalid role." });
+    }
+
+    const user = await User.findOneAndUpdate(
+      { email },
+      { role },
+      { new: true }
+    ).select("-password");
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ message: "Server error." });
+  }
+};
+
+export const deleteUser = async (req: Request, res: Response) => {
+  try {
+    const { email } = req.params;
+    const user = await User.findOneAndDelete({ email });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    res.json({ message: "User deleted." });
+  } catch (error) {
+    res.status(500).json({ message: "Server error." });
+  }
+};
