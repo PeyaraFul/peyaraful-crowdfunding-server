@@ -3,6 +3,8 @@ import cors from "cors";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
 import User from "./models/User";
+import authRoutes from "./routes/auth";
+import userRoutes from "./routes/user";
 
 dotenv.config();
 
@@ -53,5 +55,8 @@ const startServer = async () => {
 app.get("/", (req, res) => {
   res.json({ message: "Peyaraful Crowdfunding API is running." });
 });
+
+app.use("/api/auth", authRoutes);
+app.use("/api/users", userRoutes);
 
 startServer();
