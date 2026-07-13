@@ -11,6 +11,7 @@ import withdrawalRoutes from "./routes/withdrawal";
 import creditRoutes from "./routes/credit";
 import notificationRoutes from "./routes/notification";
 import reportRoutes from "./routes/report";
+import stripeRoutes from "./routes/stripe";
 
 dotenv.config();
 
@@ -70,5 +71,6 @@ app.use("/api/withdrawals", withdrawalRoutes);
 app.use("/api/credits", creditRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/reports", reportRoutes);
+app.use("/api/stripe", stripeRoutes);
 
 startServer();
