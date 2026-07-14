@@ -14,7 +14,11 @@ const packages: { [key: number]: number } = {
 export const purchaseCredits = async (req: AuthRequest, res: Response) => {
   try {
     const { credits, amount, transactionId } = req.body;
-    const email = req.user?.email || "test@test.com";
+
+    if (!req.user?.email) {
+      return res.status(401).json({ message: "Unauthorized." });
+    }
+    const email = req.user.email;
 
     if (!credits || !amount || !transactionId) {
       return res.status(400).json({ message: "All fields are required." });
@@ -74,7 +78,7 @@ export const purchaseCredits = async (req: AuthRequest, res: Response) => {
 
 export const getPaymentHistory = async (req: AuthRequest, res: Response) => {
   try {
-    const payments = await Payment.find({ email: req.user?.email || "test@test.com" }).sort({
+    const payments = await Payment.find({ email: req.user!.email }).sort({
       date: -1,
     });
 

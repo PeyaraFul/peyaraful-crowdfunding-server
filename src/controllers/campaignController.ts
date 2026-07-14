@@ -45,10 +45,25 @@ export const getApprovedCampaigns = async (
   res: Response
 ) => {
   try {
-    const campaigns = await Campaign.find({
+    const { search, category } = req.query;
+
+    const filter: any = {
       status: "approved",
       deadline: { $gt: new Date() },
-    }).sort({ deadline: 1 });
+    };
+
+    if (search && typeof search === "string") {
+      filter.$or = [
+        { title: { $regex: search, $options: "i" } },
+        { creator_name: { $regex: search, $options: "i" } },
+      ];
+    }
+
+    if (category && category !== "all" && typeof category === "string") {
+      filter.category = category;
+    }
+
+    const campaigns = await Campaign.find(filter).sort({ deadline: 1 });
 
     res.json(campaigns);
   } catch (error) {
