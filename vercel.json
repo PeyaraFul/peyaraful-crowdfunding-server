@@ -1,4 +1,5 @@
 {
+  "buildCommand": "node -e \"process.exit(0)\"",
   "outputDirectory": "dist",
   "functions": {
     "api/index.ts": {
