@@ -1,4 +1,6 @@
 {
+  "outputDirectory": "dist",
+  "installCommand": "npm install",
   "functions": {
     "api/index.ts": {
       "maxDuration": 30
