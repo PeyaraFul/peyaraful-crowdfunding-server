@@ -17,22 +17,7 @@ const app = express();
 app.use(cors({ origin: process.env.CLIENT_URL || "http://localhost:3000" }));
 app.use(express.json());
 
-// routes
-app.get("/", (_req, res) => {
-  res.json({ message: "Peyaraful Crowdfunding API is running." });
-});
-
-app.use("/api/auth", authRoutes);
-app.use("/api/users", userRoutes);
-app.use("/api/campaigns", campaignRoutes);
-app.use("/api/contributions", contributionRoutes);
-app.use("/api/withdrawals", withdrawalRoutes);
-app.use("/api/credits", creditRoutes);
-app.use("/api/notifications", notificationRoutes);
-app.use("/api/reports", reportRoutes);
-app.use("/api/stripe", stripeRoutes);
-
-// connect to MongoDB
+// connect to MongoDB before handling any route
 let isConnected = false;
 
 const connectDB = async () => {
@@ -65,5 +50,20 @@ app.use(async (_req, _res, next) => {
   await connectDB();
   next();
 });
+
+// routes
+app.get("/", (_req, res) => {
+  res.json({ message: "Peyaraful Crowdfunding API is running." });
+});
+
+app.use("/api/auth", authRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/campaigns", campaignRoutes);
+app.use("/api/contributions", contributionRoutes);
+app.use("/api/withdrawals", withdrawalRoutes);
+app.use("/api/credits", creditRoutes);
+app.use("/api/notifications", notificationRoutes);
+app.use("/api/reports", reportRoutes);
+app.use("/api/stripe", stripeRoutes);
 
 export default app;
