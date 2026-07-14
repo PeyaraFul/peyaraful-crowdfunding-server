@@ -83,3 +83,12 @@ export const getPaymentHistory = async (req: AuthRequest, res: Response) => {
     res.status(500).json({ message: "Server error." });
   }
 };
+
+export const getAllPayments = async (req: AuthRequest, res: Response) => {
+  try {
+    const payments = await Payment.find({}).sort({ date: -1 });
+    res.json(payments);
+  } catch (error) {
+    res.status(500).json({ message: "Server error." });
+  }
+};

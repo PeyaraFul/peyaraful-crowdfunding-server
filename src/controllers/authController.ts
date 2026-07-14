@@ -17,6 +17,17 @@ export const register = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "All fields are required." });
     }
 
+    // validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ message: "Invalid email format." });
+    }
+
+    // validate password length
+    if (password.length < 6) {
+      return res.status(400).json({ message: "Password must be at least 6 characters." });
+    }
+
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(409).json({ message: "Email already registered." });
@@ -62,6 +73,12 @@ export const login = async (req: Request, res: Response) => {
       return res
         .status(400)
         .json({ message: "Email and password are required." });
+    }
+
+    // validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ message: "Invalid email format." });
     }
 
     const user = await User.findOne({ email });

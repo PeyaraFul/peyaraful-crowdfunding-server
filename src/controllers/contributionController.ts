@@ -64,6 +64,13 @@ export const createContribution = async (req: AuthRequest, res: Response) => {
       status: "pending",
     });
 
+    // notify creator about new contribution
+    await createNotification(
+      supporter.name + " contributed " + amount + " credits to your campaign \"" + campaign.title + "\".",
+      campaign.creator_email,
+      "/dashboard/creator-home/contributions"
+    );
+
     res.status(201).json(contribution);
   } catch (error) {
     res.status(500).json({ message: "Server error." });

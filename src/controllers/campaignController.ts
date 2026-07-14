@@ -152,6 +152,20 @@ export const deleteCampaign = async (req: AuthRequest, res: Response) => {
       }
     }
 
+    // also refund pending contributions
+    const pendingContributions = await Contribution.find({
+      campaign_id: req.params.id,
+      status: "pending",
+    });
+
+    for (const contrib of pendingContributions) {
+      const supporter = await User.findOne({ email: contrib.supporter_email });
+      if (supporter) {
+        supporter.credits += contrib.amount;
+        await supporter.save();
+      }
+    }
+
     await Campaign.findByIdAndDelete(req.params.id);
 
     // delete all contributions for this campaign
