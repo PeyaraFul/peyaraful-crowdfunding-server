@@ -1,6 +1,0 @@
-{
-  "installCommand": "npm install",
-  "buildCommand": "mkdir -p dist",
-  "outputDirectory": ".",
-  "framework": null
-}
