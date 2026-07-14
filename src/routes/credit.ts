@@ -4,7 +4,7 @@ import { verifyToken } from "../middleware/verifyToken";
 
 const router = Router();
 
-router.post("/purchase", purchaseCredits);
-router.get("/history", getPaymentHistory);
+router.post("/purchase", verifyToken, purchaseCredits);
+router.get("/history", verifyToken, getPaymentHistory);
 
 export default router;
