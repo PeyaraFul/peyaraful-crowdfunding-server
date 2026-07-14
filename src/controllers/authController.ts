@@ -1,7 +1,10 @@
 import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
+import { OAuth2Client } from "google-auth-library";
 import User from "../models/User";
 import { AuthRequest } from "../middleware/verifyToken";
+
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 const generateToken = (email: string, role: string): string => {
   return jwt.sign({ email, role }, process.env.JWT_SECRET!, {
@@ -185,5 +188,61 @@ export const deleteUser = async (req: Request, res: Response) => {
     res.json({ message: "User deleted." });
   } catch (error) {
     res.status(500).json({ message: "Server error." });
+  }
+};
+
+export const googleLogin = async (req: Request, res: Response) => {
+  try {
+    const { credential, role } = req.body;
+
+    if (!credential) {
+      return res.status(400).json({ message: "Google credential is required." });
+    }
+
+    const ticket = await googleClient.verifyIdToken({
+      idToken: credential,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+
+    const payload = ticket.getPayload();
+    if (!payload || !payload.email) {
+      return res.status(400).json({ message: "Invalid Google token." });
+    }
+
+    const { email, name, picture } = payload;
+
+    let user = await User.findOne({ email });
+
+    if (!user) {
+      // create new user — default to supporter, random password
+      const randomPassword = Math.random().toString(36).slice(-12);
+      const userRole = ["supporter", "creator"].includes(role) ? role : "supporter";
+      const defaultCredits = userRole === "creator" ? 20 : 50;
+
+      user = await User.create({
+        name: name || "Google User",
+        email,
+        photo: picture || "",
+        role: userRole,
+        password: randomPassword,
+        credits: defaultCredits,
+      });
+    }
+
+    const token = generateToken(user.email, user.role);
+
+    res.json({
+      token,
+      user: {
+        name: user.name,
+        email: user.email,
+        photo: user.photo,
+        role: user.role,
+        credits: user.credits,
+      },
+    });
+  } catch (error) {
+    console.error("Google auth error:", error);
+    res.status(500).json({ message: "Google authentication failed." });
   }
 };
